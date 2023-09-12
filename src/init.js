@@ -1,7 +1,13 @@
-import { compileToFunction } from "./compile/index.js";
+import {
+    compileToFunction
+} from "./compile/index.js";
 import {
     initState
 } from "./initState";
+import {
+    mounetComponent
+} from './lifecycle'
+
 
 export function initMixin(Vue) {
     Vue.prototype._init = function (options) {
@@ -24,25 +30,28 @@ export function initMixin(Vue) {
         //el template render
         let vm = this
         el = document.querySelector(el) //获取元素
+        vm.$el = el
         let options = vm.$options
         if (!options.render) { //没有
             let template = options.template
             if (!template && el) {
                 //获取html
                 el = el.outerHTML
-                console.log(el,'this is init.js attrs:el')
+                // console.log(el,'this is init.js attrs:el')
                 //<div id="app">Hello</div>
                 //变成ast语法树
-                let ast = compileToFunction(el)
-                console.log(ast,'this is ast')
-                //render()
-
+                let render = compileToFunction(el)
+                console.log(render)
+                //(1)render函数变为 vnode (2)vnode变成真实DOM放到页面上去
+                options.render = render
                 //
 
             }
         }
+        //挂载组件
+        mounetComponent(vm, el)
     }
-    
+
 }
 
 //ast语法树 {}    vnode {}
@@ -56,4 +65,4 @@ export function initMixin(Vue) {
  * 
  * 
  * 
-*/
+ */

@@ -8,7 +8,7 @@
 </head>
 
 <body>
-    <div id="app" class="hh" style="display:block">Hello{{msg}}</div>
+    <div id="app" style="display: block;color: #000">Hello{{msg}}<h2>张三</h2></div>
     <script src="dist/vue.js"></script>
     <script>
         //umd Vue
@@ -22,11 +22,13 @@
                 console.log(this)
                 return {
                     msg: 'hello',
-                    a:{
-                        b:99
+                    a: {
+                        b: 99
                     },
-                    list:[1,2,3],
-                    arr:[{a:1}]
+                    list: [1, 2, 3],
+                    arr: [{
+                        a: 1
+                    }]
                 }
             }
         })
@@ -34,10 +36,10 @@
         // console.log(vm._data.arr.push({b:6}))
         // vm.msg =vm._data.msg
         // console.log(vm.msg)
-        //vue初次渲染 =>先初始化数据 =>将模板进行编译 =>变成render() =>生成虚拟节点 =>变成真实DOM =>放达页面上
+        // vue初次渲染 =>先初始化数据 =>将模板进行编译 =>变成render() =>生成虚拟节点 =>变成真实DOM =>放达页面上
 
-        //vue 模板 template render el 注意:必须要有el
-        //render() template
+        // vue 模板 template render el 注意:必须要有el
+        // render() template
     </script>
 </body>
 
