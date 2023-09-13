@@ -147,8 +147,10 @@
 
   //处理子节点
   function genChildren(el) {
-    var children = el.children;
+    var children = el.children; //获取元素节点的子节点
+    //如果存在子节点，则递归调用 gen() 函数处理每个子节点，并用逗号拼接子节点的代码。
     if (children) {
+      //返回子节点代码的字符串。
       return children.map(function (child) {
         return gen(child);
       }).join(',');
@@ -158,15 +160,20 @@
   function gen(node) {
     //1.元素  2.div  tip:_v表示文本
     // console.log(node, "this is node")
+    //如果节点是元素节点，递归调用 generate() 函数处理该节点，并返回结果。
     if (node.type === 1) {
       return generate(node);
     } else {
-      //文本 (1) 只是文本 hello  (2){{}}
+      //文本 
+      //(1) 只是文本 hello  (2){{}}
       var text = node.text; //获取文本
+      //转化
       if (!defaultTagRE.test(text)) {
         return "_v(".concat(JSON.stringify(text), ")");
       }
       //(2)带插值表达式{{}}
+      //文本包含插值表达式，使用正则表达式 defaultTagRE 
+      //查找所有 {{}} 形式的插值表达式，并解析成可执行的代码片段。
       var tokens = [];
       //lastIndex 需要清零 否则test匹配会失败
       var lastindex = defaultTagRE.lastIndex = 0;
@@ -247,11 +254,12 @@
     }
     createParent = element;
     stack.push(element);
-    console.log(tag, attrs, '开始的标签');
+    // console.log(tag, attrs, '开始的标签')
   }
+
   function charts(text) {
     //获取文本
-    console.log(text, '文本');
+    // console.log(text, '文本')
     // text = text.replace(/a/g,'')
     if (text) {
       createParent.children.push({
@@ -271,8 +279,9 @@
       element.parent = createParent.tag;
       createParent.children.push(element);
     }
-    console.log(tag, '结束标签');
+    // console.log(tag, '结束标签')
   }
+
   function parseHTML(html) {
     while (html) {
       //html 为空时,结束
@@ -367,13 +376,14 @@
   function compileToFunction(el) {
     //1. 将html元素变为ast语法树
     var ast = parseHTML(el);
-    console.log(ast);
     //2. ast语法树变成render函数
     //(1) ast语法树变成字符串
     //(2) 字符串变成函数
     var code = generate(ast); // _c _v _s
+    console.log(code);
     //3.将render字符串变成函数
     var render = new Function("with(this){return ".concat(code, "}"));
+    console.log(render, 'this is render');
     return render;
   }
 

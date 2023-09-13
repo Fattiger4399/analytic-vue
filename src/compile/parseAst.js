@@ -48,11 +48,11 @@ function start(tag, attrs) { //开始标签
     }
     createParent = element
     stack.push(element)
-    console.log(tag, attrs, '开始的标签')
+    // console.log(tag, attrs, '开始的标签')
 }
 
 function charts(text) { //获取文本
-    console.log(text, '文本')
+    // console.log(text, '文本')
     // text = text.replace(/a/g,'')
     if(text){
         createParent.children.push({
@@ -70,7 +70,7 @@ function end(tag) { //结束的标签
         element.parent = createParent.tag
         createParent.children.push(element)
     }
-    console.log(tag, '结束标签')
+    // console.log(tag, '结束标签')
 }
 
 export function parseHTML(html) {

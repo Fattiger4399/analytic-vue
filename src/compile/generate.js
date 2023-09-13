@@ -39,22 +39,29 @@ function genPorps(attrs) {
 
 //处理子节点
 function genChildren(el) {
-    let children = el.children
+    let children = el.children //获取元素节点的子节点
+    //如果存在子节点，则递归调用 gen() 函数处理每个子节点，并用逗号拼接子节点的代码。
     if (children) {
+        //返回子节点代码的字符串。
         return children.map(child => gen(child)).join(',')
     }
 }
 //
 function gen(node) { //1.元素  2.div  tip:_v表示文本
     // console.log(node, "this is node")
+    //如果节点是元素节点，递归调用 generate() 函数处理该节点，并返回结果。
     if (node.type === 1) {
         return generate(node)
-    } else { //文本 (1) 只是文本 hello  (2){{}}
+    } else { //文本 
+        //(1) 只是文本 hello  (2){{}}
         let text = node.text //获取文本
+        //转化
         if (!defaultTagRE.test(text)) {
             return `_v(${JSON.stringify(text)})`
         }
         //(2)带插值表达式{{}}
+        //文本包含插值表达式，使用正则表达式 defaultTagRE 
+        //查找所有 {{}} 形式的插值表达式，并解析成可执行的代码片段。
         let tokens = []
         //lastIndex 需要清零 否则test匹配会失败
         let lastindex = defaultTagRE.lastIndex = 0
