@@ -12,8 +12,10 @@ export function renderMixin(Vue) {
     Vue.prototype._render = function () { //render函数变成 vnode
         let vm = this
         let render = vm.$options.render
+        console.log(render,'||this is render')
+        console.log(this,"||this is this")
         let vnode = render.call(this)
-        // console.log(vnode)
+        console.log(vnode,'||this is vnode')
         return vnode
     }
 }

@@ -12,7 +12,7 @@ export function compileToFunction(el) {
     console.log(code)
     //3.将render字符串变成函数
     let render = new Function(`with(this){return ${code}}`)
-    console.log(render,'this is render')
+    // console.log(render,'this is render')
     return render
 }
 

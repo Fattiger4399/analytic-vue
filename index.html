@@ -14,6 +14,11 @@
         //umd Vue
         // console.log(Vue)
         //响应式 Vue
+        Vue.Mixin({ //全局
+            created(){
+
+            }
+        })
         let vm = new Vue({
             el: '#app', //编译模板
             // data: {
@@ -30,6 +35,9 @@
                         a: 1
                     }]
                 }
+            },
+            created(){
+                console.log(555)
             }
         })
         // .$mount("#app")
@@ -40,6 +48,9 @@
 
         // vue 模板 template render el 注意:必须要有el
         // render() template
+        //vue生命周期 实现原理 源码实现
+        //(1) Vue.Mixin()
+        //(2) 设计模式 订阅发布 方法丢到 options:{data:[],watch:[]}
     </script>
 </body>
 

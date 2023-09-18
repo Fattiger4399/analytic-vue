@@ -32,6 +32,8 @@ export function initMixin(Vue) {
         el = document.querySelector(el) //获取元素
         vm.$el = el
         let options = vm.$options
+        console.log(vm.$options,'||this is vm.$options')
+        console.log(this,'||this is this?')
         if (!options.render) { //没有
             let template = options.template
             if (!template && el) {
@@ -41,7 +43,7 @@ export function initMixin(Vue) {
                 //<div id="app">Hello</div>
                 //变成ast语法树
                 let render = compileToFunction(el)
-                console.log(render)
+                console.log(render,'||this is render from compileToFunction')
                 //(1)render函数变为 vnode (2)vnode变成真实DOM放到页面上去
                 options.render = render
                 //

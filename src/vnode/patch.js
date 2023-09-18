@@ -11,7 +11,9 @@ export function patch(oldVnode,vnode){
 }
 
 function createEl(vnode){
+    //vnode 拆解
     let {tag,data,key,children,text} = vnode
+    //判断标签是否为字符串 0:创建标签元素,递归处理子节点   1:文本节点
     if(typeof tag === 'string'){
         vnode.el = document.createElement(tag)
         if(children.length >0){
