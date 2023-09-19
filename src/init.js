@@ -5,8 +5,12 @@ import {
     initState
 } from "./initState";
 import {
+    callHook,
     mounetComponent
 } from './lifecycle'
+import {
+    mergeOptions
+} from "./utils/index.js";
 
 
 export function initMixin(Vue) {
@@ -14,9 +18,11 @@ export function initMixin(Vue) {
         // console.log(options)
         let vm = this
         //options为
-        vm.$options = options
+        vm.$options = mergeOptions(Vue.options, options)
+        callHook(vm,'beforeCreated')
         //初始化状态
         initState(vm)
+        callHook(vm,'created')
 
         // 渲染模板 el
         if (vm.$options.el) {
@@ -32,18 +38,18 @@ export function initMixin(Vue) {
         el = document.querySelector(el) //获取元素
         vm.$el = el
         let options = vm.$options
-        console.log(vm.$options,'||this is vm.$options')
-        console.log(this,'||this is this?')
+        // console.log(vm.$options,'||this is vm.$options')
+        // console.log(this,'||this is this?')
         if (!options.render) { //没有
             let template = options.template
             if (!template && el) {
                 //获取html
                 el = el.outerHTML
-                // console.log(el,'this is init.js attrs:el')
+                // console.log(el,'this is  init.js attrs:el')
                 //<div id="app">Hello</div>
                 //变成ast语法树
                 let render = compileToFunction(el)
-                console.log(render,'||this is render from compileToFunction')
+                // console.log(render,'||this is render from compileToFunction')
                 //(1)render函数变为 vnode (2)vnode变成真实DOM放到页面上去
                 options.render = render
                 //
