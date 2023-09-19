@@ -1,8 +1,8 @@
 export function patch(oldVnode,vnode){
-    console.log(oldVnode,vnode)
+    // console.log(oldVnode,vnode)
     //(1) 创建新DOM
     let el = createEl(vnode)
-    console.log(el)
+    // console.log(el)
     //(2) 替换 1) 获取父节点  2)插入 3)删除
     let parentEL = oldVnode.parentNode
     parentEL.insertBefore(el,oldVnode.nextsibling)

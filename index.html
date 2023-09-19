@@ -8,15 +8,20 @@
 </head>
 
 <body>
-    <div id="app" style="display: block;color: #000">Hello{{msg}}<h2>张三</h2></div>
+    <div id="app" style="display: block;color: #000">Hello{{msg}}<h2>{{msg}}</h2></div>
     <script src="dist/vue.js"></script>
     <script>
         //umd Vue
         // console.log(Vue)
         //响应式 Vue
         Vue.Mixin({ //全局
-            created(){
-
+            created:function a(){
+                console.log('a----1')
+            }
+        })
+        Vue.Mixin({ //全局
+            created:function b(){
+                console.log('b----2')
             }
         })
         let vm = new Vue({
@@ -40,6 +45,7 @@
                 console.log(555)
             }
         })
+        console.log(vm)
         // .$mount("#app")
         // console.log(vm._data.arr.push({b:6}))
         // vm.msg =vm._data.msg

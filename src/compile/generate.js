@@ -68,7 +68,7 @@ function gen(node) { //1.元素  2.div  tip:_v表示文本
         //match保存获取结果
         let match
         while (match = defaultTagRE.exec(text)) {
-            console.log(match, "|this is match")
+            // console.log(match, "|this is match")
             let index = match.index
             if (index > lastindex) {
                 tokens.push(JSON.stringify(text.slice(lastindex, index))) //内容
@@ -86,12 +86,12 @@ function gen(node) { //1.元素  2.div  tip:_v表示文本
 }
 
 export function generate(el) {
-    console.log(el,'|this is el')
+    // console.log(el,'|this is el')
     let children = genChildren(el)
-    console.log(children, "|this is children")
+    // console.log(children, "|this is children")
     let code = `_c('${el.tag}',${el.attrs.length?`${genPorps(el.attrs)}`:'undefined'},${
         children?`${children}`:''
     })`
-    console.log(code, '|this is code')
+    // console.log(code, '|this is code')
     return code
 }

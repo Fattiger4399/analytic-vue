@@ -9,7 +9,7 @@ export function compileToFunction(el) {
     //(1) ast语法树变成字符串
     //(2) 字符串变成函数
     let code = generate(ast) // _c _v _s
-    console.log(code)
+    // console.log(code)
     //3.将render字符串变成函数
     let render = new Function(`with(this){return ${code}}`)
     // console.log(render,'this is render')
