@@ -31,14 +31,16 @@
       }
     }
     function mergeOptions(parent, child) {
-      console.log(parent, child, '||this is parent and child in mergeOptions()');
+      // console.log(parent,child,'||this is parent and child in mergeOptions()')
       var options = {};
-      //判断是否有父亲
+      //判断父亲
       for (var key in parent) {
+        // console.log(key,'||this is key')
         mergeField(key);
       }
-      //判断是否有儿子
+      //判断儿子
       for (var _key in child) {
+        // console.log(key,'||this is key')
         mergeField(_key);
       }
       function mergeField(key) {
@@ -62,9 +64,9 @@
         //源码
         //{created:[a,b,c],watch:[a,b]}
         //对象的合并
-        console.log(999);
+        // console.log(999)
         this.options = mergeOptions(this.options, mixin);
-        console.log(Vue.options, "||this is vue.options");
+        // console.log(Vue.options,"||this is vue.options")
       };
     }
 
@@ -658,12 +660,41 @@
       return vnode.el;
     }
 
+    //(1) 通过这个类watcher 实现更新
+    var watcher = /*#__PURE__*/function () {
+      //cb表示回调函数,options表示标识
+      function watcher(vm, updataComponent, cb, options) {
+        _classCallCheck(this, watcher);
+        //(1)将
+        this.vm = vm;
+        this.exprOrfn = updataComponent;
+        this.cb = cb;
+        this.options = options;
+        //判断
+        if (typeof updataComponent === 'function') {
+          this.getter = updataComponent;
+        }
+        //更新视图
+        this.get();
+      }
+      _createClass(watcher, [{
+        key: "get",
+        value: function get() {
+          this.getter();
+        }
+      }]);
+      return watcher;
+    }();
+
     function mounetComponent(vm, el) {
       //源码
       callHook(vm, "beforeMounted");
-      vm._updata(vm._render());
       //(1)vm._render() 将 render函数变成vnode
       //(2)vm.updata()将vnode变成真实dom
+      var updataComponent = function updataComponent() {
+        vm._updata(vm._render());
+      };
+      new watcher(vm, updataComponent, function () {}, true);
       callHook(vm, "mounted");
     }
     function lifecycleMixin(Vue) {
@@ -672,6 +703,7 @@
         var vm = this;
         //两个参数 ()
         vm.$el = patch(vm.$el, vnode);
+        console.log(vm.$el, "||this is vm.$el");
       };
     }
 

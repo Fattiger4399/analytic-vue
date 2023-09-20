@@ -34,15 +34,18 @@ function mergeHook(parentVal,childVal){
         return parentVal
     }
 }
+
 export function mergeOptions(parent, child) {
-    console.log(parent,child,'||this is parent and child in mergeOptions()')
+    // console.log(parent,child,'||this is parent and child in mergeOptions()')
     const options ={}
-    //判断是否有父亲
+    //判断父亲
     for(let key in parent){
+        // console.log(key,'||this is key')
         mergeField(key)
     }
-    //判断是否有儿子
+    //判断儿子
     for(let key in child){
+        // console.log(key,'||this is key')
         mergeField(key)
     }
     function mergeField(key){

@@ -8,22 +8,23 @@
 </head>
 
 <body>
-    <div id="app" style="display: block;color: #000">Hello{{msg}}<h2>{{msg}}</h2></div>
+    <div id="app" style="display: block;color: #000">Hello{{msg}}<h2>name</h2>
+    </div>
     <script src="dist/vue.js"></script>
     <script>
         //umd Vue
         // console.log(Vue)
         //响应式 Vue
-        Vue.Mixin({ //全局
-            created:function a(){
-                console.log('a----1')
-            }
-        })
-        Vue.Mixin({ //全局
-            created:function b(){
-                console.log('b----2')
-            }
-        })
+        // Vue.Mixin({ //全局
+        //     created: function a() {
+        //         console.log('a----1')
+        //     }
+        // })
+        // Vue.Mixin({ //全局
+        //     created: function b() {
+        //         console.log('b----2')
+        //     }
+        // })
         let vm = new Vue({
             el: '#app', //编译模板
             // data: {
@@ -41,7 +42,7 @@
                     }]
                 }
             },
-            created(){
+            created() {
                 console.log(555)
             }
         })
@@ -57,6 +58,15 @@
         //vue生命周期 实现原理 源码实现
         //(1) Vue.Mixin()
         //(2) 设计模式 订阅发布 方法丢到 options:{data:[],watch:[]}
+        setTimeout(() => {
+            vm.msg = "张三"
+            // vm._updata(vm._render())
+        },1000)
+        //现在问题,你不可能把这个更新的方法交给使用者吧?
+        //开发者每次跟新完数据后面跟个  vm._updata(vm._render())
+        //所以我们引入watcher的概念,盯着数据,当数据发生改变,就触发某些方法
+        //1.数据变化,自动更新视图
+        //2.vue中更新组件策略: 以组件为单位,给每一组件添加一个watcher 
     </script>
 </body>
 

@@ -2,13 +2,18 @@ import {
     patch
 } from "./vnode/patch"
 
+import watcher from "./observe/watcher"
+
 export function mounetComponent(vm, el) {
     //源码
-    callHook(vm,"beforeMounted")
-    vm._updata(vm._render())
+    callHook(vm, "beforeMounted")
     //(1)vm._render() 将 render函数变成vnode
     //(2)vm.updata()将vnode变成真实dom
-    callHook(vm,"mounted")
+    let updataComponent = () => {
+        vm._updata(vm._render())
+    }
+    new watcher(vm, updataComponent,()=>{},true)
+    callHook(vm, "mounted")
 }
 
 export function lifecycleMixin(Vue) {
@@ -17,6 +22,7 @@ export function lifecycleMixin(Vue) {
         let vm = this
         //两个参数 ()
         vm.$el = patch(vm.$el, vnode)
+        console.log(vm.$el, "||this is vm.$el")
     }
 }
 
@@ -30,7 +36,7 @@ export function callHook(vm, hook) {
 
     const handlers = vm.$options[hook]
     if (handlers) {
-        for (let i = 0; i < handlers.length; i++){
+        for (let i = 0; i < handlers.length; i++) {
             handlers[i].call(this) //改变生命周期中的指向 
         }
     }

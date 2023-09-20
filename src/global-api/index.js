@@ -8,8 +8,8 @@ export function initGlobApi(Vue) {
         //源码
         //{created:[a,b,c],watch:[a,b]}
         //对象的合并
-        console.log(999)
+        // console.log(999)
         this.options = mergeOptions(this.options,mixin)
-        console.log(Vue.options,"||this is vue.options")
+        // console.log(Vue.options,"||this is vue.options")
     }
 }
