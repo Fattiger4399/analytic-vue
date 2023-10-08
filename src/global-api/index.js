@@ -11,5 +11,6 @@ export function initGlobApi(Vue) {
         // console.log(999)
         this.options = mergeOptions(this.options,mixin)
         // console.log(Vue.options,"||this is vue.options")
+
     }
 }

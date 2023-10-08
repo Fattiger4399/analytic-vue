@@ -19,7 +19,9 @@ starts.watch =function(){} //合并watch
 starts.methods =function(){} //合并methods
 //遍历生命周期
 HOOKS.forEach(hooks=>{
+    //是不是傻了?这里是传方法,不是调方法
     starts[hooks] = mergeHook
+    // console.log(starts,)
 })
 
 function mergeHook(parentVal,childVal){

@@ -20,11 +20,11 @@
         //         console.log('a----1')
         //     }
         // })
-        // Vue.Mixin({ //全局
-        //     created: function b() {
-        //         console.log('b----2')
-        //     }
-        // })
+        Vue.Mixin({ //全局
+            created: function b() {
+                // console.log('b----2')
+            }
+        })
         let vm = new Vue({
             el: '#app', //编译模板
             // data: {
@@ -43,10 +43,10 @@
                 }
             },
             created() {
-                console.log(555)
+                // console.log(555)
             }
         })
-        console.log(vm)
+        // console.log(vm)
         // .$mount("#app")
         // console.log(vm._data.arr.push({b:6}))
         // vm.msg =vm._data.msg
@@ -61,12 +61,15 @@
         setTimeout(() => {
             vm.msg = "张三"
             // vm._updata(vm._render())
-        },1000)
+        },2000)
         //现在问题,你不可能把这个更新的方法交给使用者吧?
         //开发者每次跟新完数据后面跟个  vm._updata(vm._render())
         //所以我们引入watcher的概念,盯着数据,当数据发生改变,就触发某些方法
         //1.数据变化,自动更新视图
-        //2.vue中更新组件策略: 以组件为单位,给每一组件添加一个watcher 
+        //2.vue中更新组件策略: 以组件为单位,给每一组件添加一个watcher
+        
+        
+        //二.实现对象的收集依赖
     </script>
 </body>
 

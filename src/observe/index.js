@@ -1,6 +1,7 @@
 import {
     ArrayMethods
 } from "./arr"
+import Dep from './dep'
 export function observer(data) {
     // console.log(data)
 
@@ -49,9 +50,14 @@ class Observer {
 //对对象中的属性进行劫持
 function defineReactive(data, key, value) {
     observer(value) //深度代理
+    let dep = new Dep() //给每一个对象添加dep
     Object.defineProperty(data, key, {
         get() {
             // console.log('获取')
+            if(Dep.target){
+                dep.depend()
+            }
+            console.log(dep)
             return value
         },
         set(newValue) {
@@ -61,6 +67,7 @@ function defineReactive(data, key, value) {
             }
             observer(newValue)
             value = newValue
+            dep.notify()
         }
     })
 

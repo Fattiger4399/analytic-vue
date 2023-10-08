@@ -16,8 +16,11 @@
     starts.methods = function () {}; //合并methods
     //遍历生命周期
     HOOKS.forEach(function (hooks) {
+      //是不是傻了?这里是传方法,不是调方法
       starts[hooks] = mergeHook;
+      // console.log(starts,)
     });
+
     function mergeHook(parentVal, childVal) {
       if (childVal) {
         if (parentVal) {
@@ -510,6 +513,30 @@
 
     // 所以，args 的作用是接收传入的参数，并将其传递给原始方法进行处理。这样就实现了在调用 ArrayMethods 对象的方法时，会先将参数打印出来，并将这些参数传递给原始的方法进行处理的功能。
 
+    var Dep = /*#__PURE__*/function () {
+      function Dep() {
+        _classCallCheck(this, Dep);
+        this.subs = [];
+      }
+      //收集watcher
+      _createClass(Dep, [{
+        key: "depend",
+        value: function depend() {
+          this.subs.push(Dep.target);
+        }
+        //更新watcher
+      }, {
+        key: "notify",
+        value: function notify() {
+          this.subs.forEach(function (watcher) {
+            watcher.updata();
+          });
+        }
+      }]);
+      return Dep;
+    }(); //添加watcher
+    Dep.target = null;
+
     function observer(data) {
       // console.log(data)
 
@@ -562,9 +589,14 @@
     }(); //对对象中的属性进行劫持
     function defineReactive(data, key, value) {
       observer(value); //深度代理
+      var dep = new Dep(); //给每一个对象添加dep
       Object.defineProperty(data, key, {
         get: function get() {
           // console.log('获取')
+          if (Dep.target) {
+            dep.depend();
+          }
+          console.log(dep);
           return value;
         },
         set: function set(newValue) {
@@ -574,6 +606,7 @@
           }
           observer(newValue);
           value = newValue;
+          dep.notify();
         }
       });
     }
@@ -660,41 +693,10 @@
       return vnode.el;
     }
 
-    //(1) 通过这个类watcher 实现更新
-    var watcher = /*#__PURE__*/function () {
-      //cb表示回调函数,options表示标识
-      function watcher(vm, updataComponent, cb, options) {
-        _classCallCheck(this, watcher);
-        //(1)将
-        this.vm = vm;
-        this.exprOrfn = updataComponent;
-        this.cb = cb;
-        this.options = options;
-        //判断
-        if (typeof updataComponent === 'function') {
-          this.getter = updataComponent;
-        }
-        //更新视图
-        this.get();
-      }
-      _createClass(watcher, [{
-        key: "get",
-        value: function get() {
-          this.getter();
-        }
-      }]);
-      return watcher;
-    }();
-
     function mounetComponent(vm, el) {
       //源码
       callHook(vm, "beforeMounted");
-      //(1)vm._render() 将 render函数变成vnode
-      //(2)vm.updata()将vnode变成真实dom
-      var updataComponent = function updataComponent() {
-        vm._updata(vm._render());
-      };
-      new watcher(vm, updataComponent, function () {}, true);
+      // new watcher(vm, updataComponent,()=>{},true)
       callHook(vm, "mounted");
     }
     function lifecycleMixin(Vue) {
@@ -703,18 +705,17 @@
         var vm = this;
         //两个参数 ()
         vm.$el = patch(vm.$el, vnode);
-        console.log(vm.$el, "||this is vm.$el");
+        // console.log(vm.$el, "||this is vm.$el")
       };
     }
 
     //(1) render()函数 =>vnode =>真实dom 
 
     //生命周期调用
-
     function callHook(vm, hook) {
       // console.log(vm.options,"||this is vm.options")
+      // console.log(hook,"||this is hook")
       // console.log(vm.$options,"||this is vm.$options")
-
       var handlers = vm.$options[hook];
       if (handlers) {
         for (var i = 0; i < handlers.length; i++) {

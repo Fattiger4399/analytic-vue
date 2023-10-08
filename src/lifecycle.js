@@ -12,7 +12,7 @@ export function mounetComponent(vm, el) {
     let updataComponent = () => {
         vm._updata(vm._render())
     }
-    new watcher(vm, updataComponent,()=>{},true)
+    // new watcher(vm, updataComponent,()=>{},true)
     callHook(vm, "mounted")
 }
 
@@ -22,18 +22,17 @@ export function lifecycleMixin(Vue) {
         let vm = this
         //两个参数 ()
         vm.$el = patch(vm.$el, vnode)
-        console.log(vm.$el, "||this is vm.$el")
+        // console.log(vm.$el, "||this is vm.$el")
     }
 }
 
 //(1) render()函数 =>vnode =>真实dom 
 
 //生命周期调用
-
 export function callHook(vm, hook) {
     // console.log(vm.options,"||this is vm.options")
+    // console.log(hook,"||this is hook")
     // console.log(vm.$options,"||this is vm.$options")
-
     const handlers = vm.$options[hook]
     if (handlers) {
         for (let i = 0; i < handlers.length; i++) {
