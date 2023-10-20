@@ -18,7 +18,14 @@ export function initMixin(Vue) {
         // console.log(options)
         let vm = this
         //options为
+        // console.log(Vue)
+        // console.log(Vue.options, options)
+        //mergeOptions()合并方法最终得到的选项将作为Vue实例的 $options 属性，
+        //包含了所有经过合并的选项
         vm.$options = mergeOptions(Vue.options, options)
+        // console.log(vm.$options)
+
+
         callHook(vm,'beforeCreated')
         //初始化状态
         initState(vm)

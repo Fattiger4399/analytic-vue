@@ -329,7 +329,7 @@
     function charts(text) {
       //获取文本
       // console.log(text, '文本')
-      // text = text.replace(/a/g,'')
+      text = text.replace(/\s/g, '');
       if (text) {
         createParent.children.push({
           type: 3,
@@ -478,7 +478,7 @@
         }
         // console.log(args)
         var result = oldArrayProtoMethods[item].apply(this, args);
-        console.log(args); //[{b:6}]
+        // console.log(args) //[{b:6}]
         //问题:数组追加对象的情况
         var inserted;
         switch (item) {
@@ -490,13 +490,14 @@
             inserted = args.splice(2);
             break;
         }
-        console.log(inserted);
+        // console.log(inserted)
         var ob = this.__ob__; //
         if (inserted) {
           ob.observeArray(inserted);
           //对添加的对象进行劫持
         }
 
+        ob.dep.notify();
         return result;
       };
     });
@@ -513,16 +514,25 @@
 
     // 所以，args 的作用是接收传入的参数，并将其传递给原始方法进行处理。这样就实现了在调用 ArrayMethods 对象的方法时，会先将参数打印出来，并将这些参数传递给原始的方法进行处理的功能。
 
+    var id$1 = 0;
     var Dep = /*#__PURE__*/function () {
       function Dep() {
         _classCallCheck(this, Dep);
+        this.id = id$1++;
         this.subs = [];
       }
       //收集watcher
       _createClass(Dep, [{
         key: "depend",
         value: function depend() {
-          this.subs.push(Dep.target);
+          //我希望watcher可以存放dep
+          //双向记忆
+          Dep.target.addDep(this);
+        }
+      }, {
+        key: "addSub",
+        value: function addSub(watcher) {
+          this.subs.push(watcher);
         }
         //更新watcher
       }, {
@@ -536,6 +546,12 @@
       return Dep;
     }(); //添加watcher
     Dep.target = null;
+    function pushTarget(watcher) {
+      Dep.target = watcher;
+    }
+    function popTarget() {
+      Dep.target = null;
+    }
 
     function observer(data) {
       // console.log(data)
@@ -552,8 +568,11 @@
         _classCallCheck(this, Observer);
         Object.defineProperty(value, "__ob__", {
           enumerable: false,
+          configurable: true,
           value: this
         });
+        // console.log(value,"this is value")
+        this.dep = new Dep(); //1.给所有对象类型增加一个dep []
         //判断数据
         // console.log(value)
         if (Array.isArray(value)) {
@@ -564,6 +583,7 @@
         } else {
           this.walk(value);
         }
+        // console.log(this.dep)
       }
       _createClass(Observer, [{
         key: "walk",
@@ -573,6 +593,9 @@
             //对象我们的每个属性进行劫持
             var key = keys[i];
             var value = data[key];
+            // console.log(data,"||data")
+            // console.log(key,"||key")
+            // console.log(value,"||value")
             defineReactive(data, key, value);
           }
         }
@@ -588,15 +611,22 @@
       return Observer;
     }(); //对对象中的属性进行劫持
     function defineReactive(data, key, value) {
-      observer(value); //深度代理
+      var childDep = observer(value); //深度代理
+      // console.log(childDep)
       var dep = new Dep(); //给每一个对象添加dep
       Object.defineProperty(data, key, {
         get: function get() {
           // console.log('获取')
+          // console.log(Dep,"||this is Dep")
+          // console.log(Dep.target,"||this is Dep.target")
           if (Dep.target) {
+            // console.log("dep.depend()被触发")
             dep.depend();
+            if (childDep.dep) {
+              childDep.dep.depend(); //数组收集
+            }
           }
-          console.log(dep);
+          // console.log(dep,"||this is dep")
           return value;
         },
         set: function set(newValue) {
@@ -646,11 +676,16 @@
       for (var key in data) {
         proxy(vm, "_data", key);
       }
+      // console.log(data)
+      // console.log(observer(data))
       observer(data);
     }
+    //Vue实例 , '_data','msg'
     function proxy(vm, source, key) {
+      // console.log(vm,source,key,'fuck')
       Object.defineProperty(vm, key, {
         get: function get() {
+          console.log();
           return vm[source][key];
         },
         set: function set(newValue) {
@@ -693,10 +728,111 @@
       return vnode.el;
     }
 
+    var id = 0;
+    var watcher = /*#__PURE__*/function () {
+      //cb表示回调函数,options表示标识
+      function watcher(vm, updataComponent, cb, options) {
+        _classCallCheck(this, watcher);
+        //(1)将
+        this.vm = vm;
+        this.exprOrfn = updataComponent;
+        this.cb = cb;
+        this.options = options;
+        this.id = id++;
+        this.deps = []; //watcher存放 dep
+        this.depsId = new Set();
+        //判断
+        if (typeof updataComponent === 'function') {
+          this.getter = updataComponent;
+        }
+        //更新视图
+        this.get();
+      }
+      _createClass(watcher, [{
+        key: "addDep",
+        value: function addDep(dep) {
+          //去重
+          var id = dep.id;
+          if (!this.depsId.has(id)) {
+            this.deps.push(dep);
+            this.depsId.add(id);
+            dep.addSub(this);
+          }
+        }
+        //初次渲染
+      }, {
+        key: "run",
+        value: function run() {
+          this.getter();
+        }
+      }, {
+        key: "get",
+        value: function get() {
+          // console.log(this, '||this is this')
+          pushTarget(this); //给dep 添加  watcher
+          // console.log("进完")
+          this.getter();
+          // console.log("this.getter执行完毕")
+          popTarget(); //给dep 去除 watcher
+          // console.log("出完")
+        }
+        //更新
+      }, {
+        key: "updata",
+        value: function updata() {
+          // this.getter()
+          //注意:不在数据更新后每次都调用get方法,get方法会重新渲染
+          //缓存
+          queueWatcher(this);
+        }
+      }]);
+      return watcher;
+    }();
+    var queue = []; // 将需要批量更新的watcher 存放到一个列队中
+    var has = {};
+    var pending = false;
+    function queueWatcher(watcher) {
+      var id = watcher.id; // 每个组件都是同一个 watcher
+      //    console.log(id) //去重
+      if (has[id] == null) {
+        //去重
+        //列队处理
+        queue.push(watcher); //将wacher 添加到列队中
+        has[id] = true;
+        //防抖 ：用户触发多次，只触发一个 异步，同步
+        if (!pending) {
+          //异步：等待同步代码执行完毕之后，再执行
+          setTimeout(function () {
+            queue.forEach(function (item) {
+              return item.run();
+            });
+            queue = [];
+            has = {};
+            pending = false;
+          }, 0);
+          // nextTick(flushWatcher) //  nextTick相当于定时器
+        }
+
+        pending = true;
+      }
+    }
+
+    //收集依赖 vue dep watcher data:{name,msg}
+    //dep:dep 和 data 中的属性是一一对应
+    //watcher:监视的数据有多少个,就对应有多少个watcher
+    //dep与watcher: 一对多 dep.name = [w1,w2]
+
+    //实现对象的收集依赖
+
     function mounetComponent(vm, el) {
       //源码
       callHook(vm, "beforeMounted");
-      // new watcher(vm, updataComponent,()=>{},true)
+      //(1)vm._render() 将 render函数变成vnode
+      //(2)vm.updata()将vnode变成真实dom
+      var updataComponent = function updataComponent() {
+        vm._updata(vm._render());
+      };
+      new watcher(vm, updataComponent, function () {}, true);
       callHook(vm, "mounted");
     }
     function lifecycleMixin(Vue) {
@@ -729,7 +865,13 @@
         // console.log(options)
         var vm = this;
         //options为
+        // console.log(Vue)
+        // console.log(Vue.options, options)
+        //mergeOptions()合并方法最终得到的选项将作为Vue实例的 $options 属性，
+        //包含了所有经过合并的选项
         vm.$options = mergeOptions(Vue.options, options);
+        // console.log(vm.$options)
+
         callHook(vm, 'beforeCreated');
         //初始化状态
         initState(vm);

@@ -1,10 +1,17 @@
+let id = 0
 class Dep{
     constructor(){
+        this.id = id++
         this.subs = []
     }
     //收集watcher
     depend(){
-        this.subs.push(Dep.target)
+        //我希望watcher可以存放dep
+        //双向记忆
+        Dep.target.addDep(this)
+    }
+    addSub(watcher){
+        this.subs.push(watcher)
     }
     //更新watcher
     notify(){

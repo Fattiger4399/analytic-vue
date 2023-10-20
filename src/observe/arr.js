@@ -14,7 +14,7 @@ methods.forEach(item => {
     ArrayMethods[item] = function (...args) {
         // console.log(args)
         let result = oldArrayProtoMethods[item].apply(this, args)
-        console.log(args) //[{b:6}]
+        // console.log(args) //[{b:6}]
         //问题:数组追加对象的情况
         let inserted;
         switch (item) {
@@ -26,12 +26,13 @@ methods.forEach(item => {
                 inserted = args.splice(2);
                 break;
         }
-        console.log(inserted)
+        // console.log(inserted)
         let ob = this.__ob__ //
         if (inserted) {
             ob.observeArray(inserted)
             //对添加的对象进行劫持
         }
+        ob.dep.notify()
         return result
     }
 })

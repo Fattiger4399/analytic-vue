@@ -53,7 +53,7 @@ function start(tag, attrs) { //开始标签
 
 function charts(text) { //获取文本
     // console.log(text, '文本')
-    // text = text.replace(/a/g,'')
+    text = text.replace(/\s/g,'')
     if(text){
         createParent.children.push({
             type:3,

@@ -39,12 +39,16 @@ function initData(vm){
     for(let key in data){
         proxy(vm,"_data",key)
     }
+    // console.log(data)
+    // console.log(observer(data))
     observer(data)
 }
-
+//Vue实例 , '_data','msg'
 function proxy(vm,source,key){
+    // console.log(vm,source,key,'fuck')
     Object.defineProperty(vm,key,{
         get(){
+            console.log()
             return vm[source][key]
         },
         set(newValue){
