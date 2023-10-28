@@ -16,7 +16,7 @@ export default{
         serve({ //3000
             port:3000,
             contentBase:'',//当前目录为基准
-            openPage:'/index.html'
+            openPage:'/watch.html'
         })
     ]
 }

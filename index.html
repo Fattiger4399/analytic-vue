@@ -31,7 +31,10 @@
                 }
             },
             created() {
-                // console.log(555)
+                console.log(555)
+            },
+            updated(){
+                console.log(111)
             }
         })
         // console.log(vm)
@@ -50,11 +53,16 @@
         //     vm.msg.a = "张三"
         //     vm._updata(vm._render())
         // },3000)
+        console.log(vm.msg,"||直接打印msg的值")
         setTimeout(() => {
             //注意数据更新多次,vm._updata(vm._render()) 只需要执行一次
             vm.arr.push({b:5})
             vm.arr.push({b:6})
+            console.log(vm.msg,"||计时器打印msg的值")
             vm.msg = '张三'
+            vm.$nextTick(()=>{
+                console.log(vm.msg,"||nextTick()方法打印msg的值")
+            })
         }, 1000)
         //现在问题,你不可能把这个更新的方法交给使用者吧?
         //开发者每次跟新完数据后面跟个  vm._updata(vm._render())
