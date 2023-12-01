@@ -33,37 +33,37 @@ stateMixin(Vue) // 给 vm 添加  $nextTick
 initGlobalApi(Vue);
 
 // 创建vnode
-let vm1 = new Vue({
-  data: {
-    name: '张三'
-  }
-})
-let render1 = compileToFunction(`<ul>
-    <li style="background:red" key="c">c</li>
-     <li style="background:pink" key="b">b</li>
-     <li style="background:blue" key="a">a</li>
-    </ul>`)
-let vnode1 = render1.call(vm1)
-document.body.appendChild(createELm(vnode1))
+// let vm1 = new Vue({
+//   data: {
+//     name: '张三'
+//   }
+// })
+// let render1 = compileToFunction(`<ul>
+//     <li style="background:red" key="c">c</li>
+//      <li style="background:pink" key="b">b</li>
+//      <li style="background:blue" key="a">a</li>
+//     </ul>`)
+// let vnode1 = render1.call(vm1)
+// document.body.appendChild(createELm(vnode1))
 
-//数据更新
-let vm2 = new Vue({
-  data: {
-    name: '李四'
-  }
-})
-let render2 = compileToFunction(`<ul>
-     <li style="background:red" key="f">f</li>
-     <li style="background:pink" key="g">g</li>
-     <li style="background:pink" key="b">b</li>
-     <li style="background:blue" key="e">e</li>
+// //数据更新
+// let vm2 = new Vue({
+//   data: {
+//     name: '李四'
+//   }
+// })
+// let render2 = compileToFunction(`<ul>
+//      <li style="background:red" key="f">f</li>
+//      <li style="background:pink" key="g">g</li>
+//      <li style="background:pink" key="b">b</li>
+//      <li style="background:blue" key="e">e</li>
 
-    </ul>`)
-let vnode2 = render2.call(vm2)
+//     </ul>`)
+// let vnode2 = render2.call(vm2)
 
-setTimeout(() => {
-  patch(vnode1, vnode2)
-}, 2000)
+// setTimeout(() => {
+//   patch(vnode1, vnode2)
+// }, 2000)
 
 //  let vm1 = new Vue({data:{name:'张三'}})
 //  let render1 = compileToFunction(`<ul>

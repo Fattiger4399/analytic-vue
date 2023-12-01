@@ -1,6 +1,11 @@
-import { Observer } from "./observe/index.js";
-import { nextTick } from "./utils/nextTick.js";
+import {
+    Observer
+} from "./observe/index.js";
+import {
+    nextTick
+} from "./utils/nextTick.js";
 import Watcher from './observe/watcher'
+import Dep from "./observe/dep.js";
 export function initState(vm) {
     // console.log(vm)
     //
@@ -14,8 +19,8 @@ export function initState(vm) {
     if (opts.props) {
         initProps(vm);
     }
-  
- 
+
+
     if (opts.computed) {
         initComputed(vm);
     }
@@ -25,8 +30,58 @@ export function initState(vm) {
 }
 
 function initComputed(vm) {
+    let computed = vm.$options.computed
+    console.log(computed)
+    let watcher = vm.computedWatchers = {}
 
+    for (let key in computed) {
+        let userDef = computed[key]
+
+        let getter = typeof userDef == 'function' ? userDef : userDef.get
+        watcher[key] = new Watcher(vm, getter, () => {}, {
+            lazy: true
+        })
+        defineComputed(vm, key, userDef)
+    }
 }
+let sharedPropDefinition = {}
+
+function defineComputed(target, key, userDef, ) {
+    sharedPropDefinition = {
+        enumerable: true,
+        configurable: true,
+        get: () => {},
+        set: () => {}
+    }
+    if (typeof userDef == 'function') {
+        sharedPropDefinition.get = createComputedGetter(key)
+    } else {
+        sharedPropDefinition.get = createComputedGetter(key)
+        sharedPropDefinition.set = userDef.set
+    }
+    Object.defineProperty(target, key, sharedPropDefinition)
+}
+//高阶函数
+function createComputedGetter(key) {
+    return function () {
+        // if (dirty) {
+
+        // }
+        let watcher = this.computedWatchers[key]
+        if (watcher) {
+            if (watcher.dirty) {
+                //执行 求值 
+                watcher.evaluate() //
+            }
+            if(Dep.targer){ //说明
+
+                watcher.depend()
+            }
+            return watcher.value
+        }
+    }
+}
+
 function initMethod(vm) {
 
 }
@@ -34,13 +89,14 @@ function initMethod(vm) {
 function proxy(vm, data, key) {
     Object.defineProperty(vm, key, {
         get() {
-            return vm[data][key]// vm._data.a
+            return vm[data][key] // vm._data.a
         },
         set(newValue) {
             vm[data][key] = newValue
         }
     })
 }
+
 function initData(vm) { //数据进行初始化
     let data = vm.$options.data
     data = vm._data = typeof data === 'function' ? data.call(vm) : data
@@ -52,9 +108,11 @@ function initData(vm) { //数据进行初始化
     }
     Observer(data)
 }
+
 function initProps(vm) {
 
 }
+
 function initWatch(vm) {
     //1 获取watch
     let watch = vm.$options.watch
@@ -63,13 +121,13 @@ function initWatch(vm) {
     for (let key in watch) {
         //2.1获取 他的属性对应的值 （判断)
         let handler = watch[key] //数组 ，对象 ，字符，函数
-        if (Array.isArray(handler)) {//数组  []
-            handler.forEach(item=>{
-                createrWatcher(vm,key,item) 
+        if (Array.isArray(handler)) { //数组  []
+            handler.forEach(item => {
+                createrWatcher(vm, key, item)
             })
-        } else {//对象 ，字符，函数
-           //3创建一个方法来处理
-           createrWatcher(vm,key,handler)
+        } else { //对象 ，字符，函数
+            //3创建一个方法来处理
+            createrWatcher(vm, key, handler)
         }
     }
 }
@@ -80,43 +138,46 @@ function initWatch(vm) {
 //exprOrfn key
 //hendler key对应的值
 //options 自定义配置项 vue自己的为空,用户定义的才有
-function createrWatcher(vm,exprOrfn,handler,options){
-   //3.1 处理handler
-   if(typeof handler ==='object'){
-       options = handler; //用户的配置项目
-       handler = handler.handler;//这个是一个函数
-   }
-   if(typeof handler ==='string'){// 'aa'
-       handler = vm[handler] //将实例行的方法作为 handler 方法代理和data 一样
-   }
-   //其他是 函数
-   //watch 最终处理 $watch 这个方法
-//    console.log(vm,"||vm")
-//    console.log(exprOrfn,"||exprOrfn")
-//    console.log(handler,"||handler")
-//    console.log(options,"||options")
+function createrWatcher(vm, exprOrfn, handler, options) {
+    //3.1 处理handler
+    if (typeof handler === 'object') {
+        options = handler; //用户的配置项目
+        handler = handler.handler; //这个是一个函数
+    }
+    if (typeof handler === 'string') { // 'aa'
+        handler = vm[handler] //将实例行的方法作为 handler 方法代理和data 一样
+    }
+    //其他是 函数
+    //watch 最终处理 $watch 这个方法
+    //    console.log(vm,"||vm")
+    //    console.log(exprOrfn,"||exprOrfn")
+    //    console.log(handler,"||handler")
+    //    console.log(options,"||options")
 
-   return vm.$watch(vm,exprOrfn,handler,options)
+    return vm.$watch(vm, exprOrfn, handler, options)
 }
 
 export function stateMixin(vm) {
     // console.log(vm,6666)
     //列队 :1就是vue自己的nextTick  2用户自己的
     vm.prototype.$nextTick = function (cb) { //nextTick: 数据更新之后获取到最新的DOM
-        //  console.log(cb)
-        nextTick(cb)
-    },
-    vm.prototype.$watch =function(Vue,exprOrfn,handler,options={}){ //上面格式化处理
-        //   console.log(exprOrfn,handler,options)
-          //实现watch 方法 就是new  watcher //渲染走 渲染watcher $watch 走 watcher  user false
-         //  watch 核心 watcher
-         let watcher = new Watcher(Vue,exprOrfn,handler,{...options,user:true})
-          
-         if(options.immediate){
-            handler.call(Vue) //如果有这个immediate 立即执行
-         }
-    }
-    
+            //  console.log(cb)
+            nextTick(cb)
+        },
+        vm.prototype.$watch = function (Vue, exprOrfn, handler, options = {}) { //上面格式化处理
+            //   console.log(exprOrfn,handler,options)
+            //实现watch 方法 就是new  watcher //渲染走 渲染watcher $watch 走 watcher  user false
+            //  watch 核心 watcher
+            let watcher = new Watcher(Vue, exprOrfn, handler, {
+                ...options,
+                user: true
+            })
+
+            if (options.immediate) {
+                handler.call(Vue) //如果有这个immediate 立即执行
+            }
+        }
+
 }
 
 //nextTick 原理 

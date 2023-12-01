@@ -208,15 +208,20 @@
     return Dep;
   }(); //dep  和 watcher 关系
   Dep.targer = null;
+  var stack = [];
   function pushTarget(watcher) {
     //添加 watcher
 
     Dep.targer = watcher; //保留watcher
+
+    stack.push(watcher); //渲染watcher
     // console.log(Dep.targer)
   }
 
   function popTarget() {
-    Dep.targer = null; //将变量删除
+    stack.pop();
+    // Dep.targer = null //将变量删除
+    Dep.targer = stack[stack.length - 1];
   }
   //多对多的关系
   //1. 一个属性有一个dep ,dep 作用：用来收集watcher的
@@ -373,6 +378,9 @@
       this.exprOrfn = exprOrfn;
       this.cb = cb;
       this.options = options;
+      //for conputed
+      this.lazy = options.lazy;
+      this.dirty = this.lazy;
       // 2. 每一组件只有一个watcher 他是为标识
       this.id = id++;
       this.user = !!options.user;
@@ -394,7 +402,8 @@
         };
       }
       // 4.执行渲染页面
-      this.value = this.get(); //保存watch 初始值
+      // this.value =  this.get() //保存watch 初始值
+      this.value = this.lazy ? void 0 : this.get();
     }
     _createClass(Watcher, [{
       key: "addDep",
@@ -430,7 +439,7 @@
         // Dep.target = watcher
 
         pushTarget(this); //当前的实例添加
-        var value = this.getter(); // 渲染页面  render()   with(wm){_v(msg,_s(name))} ，取值（执行get这个方法） 走劫持方法
+        var value = this.getter.call(this.vm); // 渲染页面  render()   with(wm){_v(msg,_s(name))} ，取值（执行get这个方法） 走劫持方法
         popTarget(); //删除当前的实例 这两个方法放在 dep 中
         return value;
       }
@@ -444,8 +453,28 @@
         //三次
         //注意：不要数据更新后每次都调用 get 方法 ，get 方法回重新渲染
         //缓存
-        // this.get() //重新渲染
-        queueWatcher(this);
+        // this.get() //重新
+
+        // 渲染
+        if (this.lazy) {
+          this.dirty = true;
+        } else {
+          queueWatcher(this);
+        }
+      }
+    }, {
+      key: "evaluate",
+      value: function evaluate() {
+        this.value = this.get();
+        this.dirty = false;
+      }
+    }, {
+      key: "depend",
+      value: function depend() {
+        var i = this.deps.length;
+        while (i--) {
+          this.deps[i].depend();
+        }
       }
     }]);
     return Watcher;
@@ -501,8 +530,61 @@
       initWatch(vm);
     }
     if (opts.props) ;
-    if (opts.computed) ;
+    if (opts.computed) {
+      initComputed(vm);
+    }
     if (opts.methods) ;
+  }
+  function initComputed(vm) {
+    var computed = vm.$options.computed;
+    console.log(computed);
+    var watcher = vm.computedWatchers = {};
+    for (var key in computed) {
+      var userDef = computed[key];
+      var getter = typeof userDef == 'function' ? userDef : userDef.get;
+      watcher[key] = new Watcher(vm, getter, function () {}, {
+        lazy: true
+      });
+      defineComputed(vm, key, userDef);
+    }
+  }
+  var sharedPropDefinition = {};
+  function defineComputed(target, key, userDef) {
+    sharedPropDefinition = {
+      enumerable: true,
+      configurable: true,
+      get: function get() {},
+      set: function set() {}
+    };
+    if (typeof userDef == 'function') {
+      sharedPropDefinition.get = createComputedGetter(key);
+    } else {
+      sharedPropDefinition.get = createComputedGetter(key);
+      sharedPropDefinition.set = userDef.set;
+    }
+    Object.defineProperty(target, key, sharedPropDefinition);
+  }
+  //高阶函数
+  function createComputedGetter(key) {
+    return function () {
+      // if (dirty) {
+
+      // }
+      var watcher = this.computedWatchers[key];
+      if (watcher) {
+        if (watcher.dirty) {
+          //执行 求值 
+          watcher.evaluate(); //
+        }
+
+        if (Dep.targer) {
+          //说明
+
+          watcher.depend();
+        }
+        return watcher.value;
+      }
+    };
   }
   //实现代理  将data中属性代理到 vm (this)
   function proxy(vm, data, key) {
@@ -1347,28 +1429,6 @@
   stateMixin(Vue); // 给 vm 添加  $nextTick
   //静态方法  ，也是全局方法  Vue.component .Vue.extend Vue.mixin ..
   initGlobalApi(Vue);
-
-  // 创建vnode
-  var vm1 = new Vue({
-    data: {
-      name: '张三'
-    }
-  });
-  var render1 = compileToFunction("<ul>\n    <li style=\"background:red\" key=\"c\">c</li>\n     <li style=\"background:pink\" key=\"b\">b</li>\n     <li style=\"background:blue\" key=\"a\">a</li>\n    </ul>");
-  var vnode1 = render1.call(vm1);
-  document.body.appendChild(createELm(vnode1));
-
-  //数据更新
-  var vm2 = new Vue({
-    data: {
-      name: '李四'
-    }
-  });
-  var render2 = compileToFunction("<ul>\n     <li style=\"background:red\" key=\"f\">f</li>\n     <li style=\"background:pink\" key=\"g\">g</li>\n     <li style=\"background:pink\" key=\"b\">b</li>\n     <li style=\"background:blue\" key=\"e\">e</li>\n\n    </ul>");
-  var vnode2 = render2.call(vm2);
-  setTimeout(function () {
-    patch(vnode1, vnode2);
-  }, 2000);
 
   return Vue;
 

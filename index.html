@@ -7,27 +7,50 @@
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title>Document</title>
     <style>
-      /* div{
+        /* div{
           background-color:blue;
           font-size: 20px
       } */
-     
     </style>
 </head>
 
 <body>
-     <!-- <div id="app" >{{a}}</div> -->
+    <div id="app">本页可用
+        <h1>{{fullName}}</h1>
+    </div>
     <!-- render(){} -->
     <script src="dist/vue.js"></script>
     <script>
-        // let vm = new Vue({
-        //     el: "#app",
-        //     data: {
-        //         a: 1,
-        //     },
-        // })
-         // 1vue 操作   vnode {tag:'div' data: children}
-         // 2真正 DOM
+        let vm = new Vue({
+            el: "#app",
+            data: {
+                firstName: 'pang',
+                lastName: 'hu'
+            },
+            computed: {
+                //1.函数
+                fullName() {
+                    console.log('执行')
+                    return this.firstName + this.lastName
+                },
+                //2.属性
+                goodName: {
+                    get() {
+                        return this.firstName + this.lastName
+                    },
+                    set(value) {
+                        // ....
+                    }
+                }
+            }
+        })
+        console.log(vm.fullName)
+        setTimeout(() => {
+            vm.firstName = "xiaofu"
+            console.log(vm.fullName)
+        }, 1000)
+        // 1vue 操作   vnode {tag:'div' data: children}
+        // 2真正 DOM
         //  for(let key in app){
         //      console.log(key)
         //  }
@@ -35,8 +58,8 @@
         //更新数据   vue diff算法 最小量更新（比对）  old   new   vnode
         //1 创建两个 vnode
         //2 比对：再数据更新的时候，拿到老的节点 和新的节点 做对比，将不同的地方进行更新
-         //比对元素  属性  watcher原理 
+        //比对元素  属性  watcher原理 
     </script>
 </body>
 
-</html> 
+</html>

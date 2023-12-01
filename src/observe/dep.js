@@ -27,13 +27,20 @@ class Dep {
 
 //dep  和 watcher 关系
 Dep.targer = null;
-export function pushTarget(watcher) {  //添加 watcher
 
+let stack =[]
+export function pushTarget(watcher) {  //添加 watcher
+    
     Dep.targer = watcher //保留watcher
+    
+    stack.push(watcher)//渲染watcher
     // console.log(Dep.targer)
 }
 export function popTarget() {
-    Dep.targer = null //将变量删除
+    stack.pop()
+    // Dep.targer = null //将变量删除
+    Dep.targer = stack[stack.length - 1]
+
 }
 export default Dep
  //多对多的关系
