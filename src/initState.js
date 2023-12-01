@@ -1,36 +1,60 @@
-import {
-    observer
-} from "./observe/index.js"
-import { nextTick } from "./utils/nextTicks.js"
-
+import { Observer } from "./observe/index.js";
+import { nextTick } from "./utils/nextTick.js";
 import Watcher from './observe/watcher'
 export function initState(vm) {
-    let opts = vm.$options
-    // console.log(opts)
-    //判断
-    if (opts.props) {
-        initProps()
-    }
+    // console.log(vm)
+    //
+    const opts = vm.$options
     if (opts.data) {
-        initData(vm)
+        initData(vm);
     }
     if (opts.watch) {
-        initWatch(vm)
+        initWatch(vm);
     }
+    if (opts.props) {
+        initProps(vm);
+    }
+  
+ 
     if (opts.computed) {
-        initComputed()
+        initComputed(vm);
     }
     if (opts.methods) {
-        initMethods()
+        initMethod(vm);
     }
 }
 
-function initComputed() {}
+function initComputed(vm) {
 
-function initMethods() {}
+}
+function initMethod(vm) {
 
-function initProps() {}
+}
+//实现代理  将data中属性代理到 vm (this)
+function proxy(vm, data, key) {
+    Object.defineProperty(vm, key, {
+        get() {
+            return vm[data][key]// vm._data.a
+        },
+        set(newValue) {
+            vm[data][key] = newValue
+        }
+    })
+}
+function initData(vm) { //数据进行初始化
+    let data = vm.$options.data
+    data = vm._data = typeof data === 'function' ? data.call(vm) : data
+    // console.log(data)
+    //数据的劫持方案对象Object.defineProperty
+    //将data中的属性代理到vm  上
+    for (let key in data) {
+        proxy(vm, "_data", key)
+    }
+    Observer(data)
+}
+function initProps(vm) {
 
+}
 function initWatch(vm) {
     //1 获取watch
     let watch = vm.$options.watch
@@ -40,7 +64,7 @@ function initWatch(vm) {
         //2.1获取 他的属性对应的值 （判断)
         let handler = watch[key] //数组 ，对象 ，字符，函数
         if (Array.isArray(handler)) {//数组  []
-            hendler.forEach(item=>{
+            handler.forEach(item=>{
                 createrWatcher(vm,key,item) 
             })
         } else {//对象 ，字符，函数
@@ -48,11 +72,14 @@ function initWatch(vm) {
            createrWatcher(vm,key,handler)
         }
     }
-
 }
 
 //vm.$watch(()=>{return 'a'}) // 返回的值就是  watcher 上的属性 user = false
 //格式化处理
+//vm 实例
+//exprOrfn key
+//hendler key对应的值
+//options 自定义配置项 vue自己的为空,用户定义的才有
 function createrWatcher(vm,exprOrfn,handler,options){
    //3.1 处理handler
    if(typeof handler ==='object'){
@@ -63,54 +90,24 @@ function createrWatcher(vm,exprOrfn,handler,options){
        handler = vm[handler] //将实例行的方法作为 handler 方法代理和data 一样
    }
    //其他是 函数
-
    //watch 最终处理 $watch 这个方法
+//    console.log(vm,"||vm")
+//    console.log(exprOrfn,"||exprOrfn")
+//    console.log(handler,"||handler")
+//    console.log(options,"||options")
+
    return vm.$watch(vm,exprOrfn,handler,options)
 }
 
-//vue2 对data初始化
-function initData(vm) {
-    // console.log('data初始化') //两种情况 (1)对象 (2)函数
-    let data = vm.$options.data
-    data = vm._data = typeof data === "function" ? data.call(vm) : data
-    //data数据进行劫持
-    //将data上的所有属性代理到实例上{a:1,b:2}
-    // for(let i=0;i<data.length;i++){
-    //     proxy(vm,"_data",data[i])
-    // }
-    // 另一种写法
-    for (let key in data) {
-        proxy(vm, "_data", key)
-    }
-    // console.log(data)
-    // console.log(observer(data))
-    observer(data)
-}
-//Vue实例 , '_data','msg'
-function proxy(vm, source, key) {
-    // console.log(vm,source,key,'fuck')
-    Object.defineProperty(vm, key, {
-        get() {
-            console.log()
-            return vm[source][key]
-        },
-        set(newValue) {
-            vm[source][key] = newValue;
-        }
-    })
-}
-//data{} (1)对象(2)数组 { a:{b:1},list:[1,2,3],arr:[{}]]}
-
 export function stateMixin(vm) {
-    //列队批处理
-    //1.处理vue自己的nextTick
-    //2.用户自己的
-    vm.prototype.$nextTick = function (cb) {
-        // console.log(cb)
+    // console.log(vm,6666)
+    //列队 :1就是vue自己的nextTick  2用户自己的
+    vm.prototype.$nextTick = function (cb) { //nextTick: 数据更新之后获取到最新的DOM
+        //  console.log(cb)
         nextTick(cb)
-    }
+    },
     vm.prototype.$watch =function(Vue,exprOrfn,handler,options={}){ //上面格式化处理
-          console.log(exprOrfn,handler,options,'||this is exprOrfn,handler,options')
+        //   console.log(exprOrfn,handler,options)
           //实现watch 方法 就是new  watcher //渲染走 渲染watcher $watch 走 watcher  user false
          //  watch 核心 watcher
          let watcher = new Watcher(Vue,exprOrfn,handler,{...options,user:true})
@@ -119,4 +116,9 @@ export function stateMixin(vm) {
             handler.call(Vue) //如果有这个immediate 立即执行
          }
     }
+    
 }
+
+//nextTick 原理 
+
+// watch 基本使用  init

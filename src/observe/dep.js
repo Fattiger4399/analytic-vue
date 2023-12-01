@@ -1,32 +1,41 @@
 let id = 0
-class Dep{
-    constructor(){
-        this.id = id++
+class Dep {
+    constructor() {
         this.subs = []
+        this.id = id++
     }
-    //收集watcher
-    depend(){
-        //我希望watcher可以存放dep
-        //双向记忆
-        Dep.target.addDep(this)
+    //收集watcher 
+    depend() {
+      
+        //我们希望water 可以存放 dep
+        //实现双休记忆的，让watcher 记住
+        //dep同时，让dep也记住了我们的watcher
+        Dep.targer.addDep(this)
+        // this.subs.push(Dep.targer) // id：1 记住他的dep
     }
     addSub(watcher){
         this.subs.push(watcher)
     }
-    //更新watcher
-    notify(){
-        this.subs.forEach(watcher =>{
+    //更新
+    notify() {
+        // console.log(Dep.targer)
+        this.subs.forEach(watcher => {
             watcher.updata()
         })
     }
 }
 
-//添加watcher
-Dep.target = null
-export function pushTarget(watcher){
-    Dep.target = watcher
+//dep  和 watcher 关系
+Dep.targer = null;
+export function pushTarget(watcher) {  //添加 watcher
+
+    Dep.targer = watcher //保留watcher
+    // console.log(Dep.targer)
 }
-export function popTarget(){
-    Dep.target = null
+export function popTarget() {
+    Dep.targer = null //将变量删除
 }
 export default Dep
+ //多对多的关系
+ //1. 一个属性有一个dep ,dep 作用：用来收集watcher的
+ //2. dep和watcher 关系：(1)dep 可以存放多个watcher  (2):一个watcher可以对应多个dep

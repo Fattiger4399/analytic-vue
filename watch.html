@@ -1,42 +1,60 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title>Document</title>
 </head>
+
 <body>
-    <div id="app">
-        {{a}}
-    </div>
-    <script src="dist/vue.js"></script>
+    <div id="app">{{a}}</div>
+    <script src='./dist/vue.js'></script>
     <script>
         let vm = new Vue({
-            el: '#app', //编译模板
-            // data: {
-            // },
-            data:{
-                a:1
+            el: "#app",
+            data: {
+                a: 1,
+                b:[1,2],
+                c:{c:{c:100}}
             },
             methods:{
                 aa(){
                     console.log(2000)
                 }
             },
-            watch:{
-                'a'(newValue,oldValue){
-                    console.log(newValue)
+            //watch 基本使用方式
+            //1 属性 ：方法(函数)
+            //2 属性 ：数组
+            //3 属性 ：对象
+            //4 属性 ：字符串
+            watch: {
+                  'c.c.c'(newValue,oldValue){
+                      console.log(newValue,oldValue,'||this isnewValue,oldValue from c.c.c')
+                  },
+                
+                a:{
+                    handler(){ //
+                        console.log('a数据更新')
+                    },
+                   immediate:true
+                    
                 },
-                // a(newValue,oldValue){
-                //     console.log(newValue,oldValue,"||this is newValue,oldValue")
-                // },
-                b(){
-                    console.log(1111)
-                },
-                a:'aa'
+                // a:'aa',
             }
         })
         vm.a = 100
+        // vm.b[1] = 2
+        console.log(vm.c.c.c=2000)
     </script>
 </body>
+
 </html>
+
+<!--  
+   1： 安装  vue
+   2:  watch 4种基本使用
+   3: 在自己vue 的初始化中进行格式化
+   4: watch 最终实现方式  $watch 
+ -->

@@ -4,86 +4,39 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title>Document</title>
+    <style>
+      /* div{
+          background-color:blue;
+          font-size: 20px
+      } */
+     
+    </style>
 </head>
 
 <body>
-    <div id="app" style="display: block;color: #000">
-        <h2>{{msg}}</h2>
-        <h2>{{arr}}</h2>
-    </div>
+     <!-- <div id="app" >{{a}}</div> -->
+    <!-- render(){} -->
     <script src="dist/vue.js"></script>
     <script>
-        Vue.Mixin({ //全局
-            created: function b() {
-                // console.log('b----2')
-            }
-        })
-        let vm = new Vue({
-            el: '#app', //编译模板
-            // data: {
-            // },
-            data() {
-                // console.log(this)
-                return {
-                    msg:'牛肉',
-                    arr: [1, 2, 3],
-                }
-            },
-            created() {
-                console.log(555)
-            },
-            updated(){
-                console.log(111)
-            }
-        })
-        // console.log(vm)
-        // .$mount("#app")
-        // console.log(vm._data.arr.push({b:6}))
-        // vm.msg =vm._data.msg
-        // console.log(vm.msg)
-        // vue初次渲染 =>先初始化数据 =>将模板进行编译 =>变成render() =>生成虚拟节点 =>变成真实DOM =>放达页面上
+        // let vm = new Vue({
+        //     el: "#app",
+        //     data: {
+        //         a: 1,
+        //     },
+        // })
+         // 1vue 操作   vnode {tag:'div' data: children}
+         // 2真正 DOM
+        //  for(let key in app){
+        //      console.log(key)
+        //  }
 
-        // vue 模板 template render el 注意:必须要有el
-        // render() template
-        //vue生命周期 实现原理 源码实现
-        //(1) Vue.Mixin()
-        //(2) 设计模式 订阅发布 方法丢到 options:{data:[],watch:[]}
-        // setTimeout(() => {
-        //     vm.msg.a = "张三"
-        //     vm._updata(vm._render())
-        // },3000)
-        console.log(vm.msg,"||直接打印msg的值")
-        setTimeout(() => {
-            //注意数据更新多次,vm._updata(vm._render()) 只需要执行一次
-            vm.arr.push({b:5})
-            vm.arr.push({b:6})
-            console.log(vm.msg,"||计时器打印msg的值")
-            vm.msg = '张三'
-            vm.$nextTick(()=>{
-                console.log(vm.msg,"||nextTick()方法打印msg的值")
-            })
-        }, 1000)
-        //现在问题,你不可能把这个更新的方法交给使用者吧?
-        //开发者每次跟新完数据后面跟个  vm._updata(vm._render())
-        //所以我们引入watcher的概念,盯着数据,当数据发生改变,就触发某些方法
-        //1.数据变化,自动更新视图
-        //2.vue中更新组件策略: 以组件为单位,给每一组件添加一个watcher
-
-
-        //二.实现对象的收集依赖
-
-        //dep和watcher关系多对多
-
-        //三.数组收集依赖
-        //思路
-        //1.给所有对象类型增加一个dep []
-        //2.获取数组的值,调用get方法 我们希望让当前数组这个渲染的watcher
-        //2.1.需要获取到当前的dep
-        //2.2 当前面对数组取值的时候,我们就让数组的dep记住这个watcher
-
-        //3. 我们更新数组的时候 调用push 等等找到我们这个watcher进行更新
+        //更新数据   vue diff算法 最小量更新（比对）  old   new   vnode
+        //1 创建两个 vnode
+        //2 比对：再数据更新的时候，拿到老的节点 和新的节点 做对比，将不同的地方进行更新
+         //比对元素  属性  watcher原理 
     </script>
 </body>
 
-</html>
+</html> 
