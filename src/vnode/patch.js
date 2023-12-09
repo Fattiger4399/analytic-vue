@@ -1,13 +1,12 @@
 export function patch(oldVnode, Vnode) {
     //原则  将虚拟节点转换成真实的节点
-    console.log(oldVnode, Vnode)
+    // console.log(oldVnode, Vnode)
     // console.log(oldVnode.nodeType)
     // console.log(Vnode.nodeType)
     //第一次渲染 oldVnode 是一个真实的DOM
     //判断ldVnode.nodeType是否为一,意思就是判断oldVnode是否为属性节点
     if (oldVnode.nodeType === 1) {
-        console.log(oldVnode, Vnode) //注意oldVnode 需要在加载 mount 添加上去  vm.$el= el
-
+        // console.log(oldVnode, Vnode) //注意oldVnode 需要在加载 mount 添加上去  vm.$el= el
         let el = createELm(Vnode) // 产生一个新的DOM
         let parentElm = oldVnode.parentNode //获取老元素（app） 父亲 ，body
         //   console.log(oldVnode)
@@ -37,7 +36,7 @@ export function patch(oldVnode, Vnode) {
         let el = Vnode.el = oldVnode.el
         updataRpors(Vnode, oldVnode.data)
         //diff子元素 <div>1</div>  <div></div>
-        console.log(oldVnode,Vnode)
+        // console.log(oldVnode,Vnode)
         let oldChildren = oldVnode.children || []
         let newChildren = Vnode.children || []
         if (oldChildren.length > 0 && newChildren.length > 0) { //老的有儿子 新有儿子
@@ -61,7 +60,7 @@ function updataChild(oldChildren, newChildren, parent) {
     //diff算法 做了很多优化 例子<div>11</div> 更新为 <div>22</div> 
     //dom中操作元素 常用的 思想 尾部添加 头部添加 倒叙和正序的方式
     //双指针 遍历
-    console.log(oldChildren, newChildren)
+    // console.log(oldChildren, newChildren)
     let oldStartIndex = 0 //老的开头索引
     let oldStartVnode = oldChildren[oldStartIndex];
     let oldEndIndex = oldChildren.length - 1
@@ -88,38 +87,38 @@ function updataChild(oldChildren, newChildren, parent) {
 
     while (oldStartIndex <= oldEndIndex && newStartIndex <= newEndIndex) {
         //比对子元素
-        console.log(666)
+        // console.log(666)
         if (isSomeVnode(oldStartVnode, newStartVnode)) {
             //递归
             //1 从头部开始
-            console.log(1)
+            // console.log(1)
             patch(oldStartVnode, newStartVnode);
             //移动指针
             oldStartVnode = oldChildren[++oldStartIndex];
             newStartVnode = newChildren[++newStartIndex];
-            console.log(oldStartVnode,newStartVnode)
+            // console.log(oldStartVnode,newStartVnode)
         }//2 从尾部开始
         else if(isSomeVnode(oldEndVnode, newEndVnode)){
             //
-            console.log(2)
+            // console.log(2)
             patch(oldEndVnode, newEndVnode);
             oldEndVnode = oldChildren[--oldEndIndex]
             newEndVnode = newChildren[--newEndIndex]
         }//3 交叉比对 从头
         else if(isSomeVnode(oldStartVnode,newEndVnode)){
-            console.log(3)
+            // console.log(3)
             patch(oldStartVnode, newEndVnode);
             oldStartVnode =oldChildren[++oldStartIndex]
             newEndVnode = newChildren[--newEndIndex];
         }//4 交叉比对 从尾
         else if(isSomeVnode(oldEndVnode,newStartVnode)){
-            console.log(4)
+            // console.log(4)
             patch(oldEndVnode, newStartVnode);
             oldEndVnode =oldChildren[--oldStartIndex]
             newStartVnode = newChildren[++newStartIndex];
         }//5 暴力比对 儿子之间没有任何关系
         else{
-            console.log(5)
+            // console.log(5)
             //1 创建 旧元素映射表
             //2 从旧的中寻找新的中有的元素
             let moveIndex = map[newStartVnode.key]
@@ -139,7 +138,7 @@ function updataChild(oldChildren, newChildren, parent) {
         }
     }
     //判断完毕,添加多余的子儿子  a b c  新的 a b c d
-    console.log(newEndIndex)
+    // console.log(newEndIndex)
     if (newStartIndex <= newEndIndex) {
         for (let i = newStartIndex; i <= newEndIndex; i++) {
             parent.appendChild(createELm(newChildren[i]))

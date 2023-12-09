@@ -59,7 +59,7 @@ export function mergeOptions(parent,child){
           options[key]=  strats[key](parent[key],child[key]) //[a]
         }else{
             //默认合并策略
-            options[key] = child[key]
+            options[key] = child[key] || parent[key]
         }
         //(1) {created:[a,b]} 
     }

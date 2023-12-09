@@ -537,12 +537,13 @@
   }
   function initComputed(vm) {
     var computed = vm.$options.computed;
-    console.log(computed);
+    // console.log(computed)
     var watcher = vm.computedWatchers = {};
     for (var key in computed) {
       var userDef = computed[key];
       var getter = typeof userDef == 'function' ? userDef : userDef.get;
       watcher[key] = new Watcher(vm, getter, function () {}, {
+        //标记此为computed的watcher
         lazy: true
       });
       defineComputed(vm, key, userDef);
@@ -568,7 +569,6 @@
   function createComputedGetter(key) {
     return function () {
       // if (dirty) {
-
       // }
       var watcher = this.computedWatchers[key];
       if (watcher) {
@@ -956,14 +956,13 @@
 
   function patch(oldVnode, Vnode) {
     //原则  将虚拟节点转换成真实的节点
-    console.log(oldVnode, Vnode);
+    // console.log(oldVnode, Vnode)
     // console.log(oldVnode.nodeType)
     // console.log(Vnode.nodeType)
     //第一次渲染 oldVnode 是一个真实的DOM
     //判断ldVnode.nodeType是否为一,意思就是判断oldVnode是否为属性节点
     if (oldVnode.nodeType === 1) {
-      console.log(oldVnode, Vnode); //注意oldVnode 需要在加载 mount 添加上去  vm.$el= el
-
+      // console.log(oldVnode, Vnode) //注意oldVnode 需要在加载 mount 添加上去  vm.$el= el
       var el = createELm(Vnode); // 产生一个新的DOM
       var parentElm = oldVnode.parentNode; //获取老元素（app） 父亲 ，body
       //   console.log(oldVnode)
@@ -994,7 +993,7 @@
       var _el = Vnode.el = oldVnode.el;
       updataRpors(Vnode, oldVnode.data);
       //diff子元素 <div>1</div>  <div></div>
-      console.log(oldVnode, Vnode);
+      // console.log(oldVnode,Vnode)
       var oldChildren = oldVnode.children || [];
       var newChildren = Vnode.children || [];
       if (oldChildren.length > 0 && newChildren.length > 0) {
@@ -1019,7 +1018,7 @@
     //diff算法 做了很多优化 例子<div>11</div> 更新为 <div>22</div> 
     //dom中操作元素 常用的 思想 尾部添加 头部添加 倒叙和正序的方式
     //双指针 遍历
-    console.log(oldChildren, newChildren);
+    // console.log(oldChildren, newChildren)
     var oldStartIndex = 0; //老的开头索引
     var oldStartVnode = oldChildren[oldStartIndex];
     var oldEndIndex = oldChildren.length - 1;
@@ -1044,38 +1043,38 @@
     var map = makeIndexBykey(oldChildren);
     while (oldStartIndex <= oldEndIndex && newStartIndex <= newEndIndex) {
       //比对子元素
-      console.log(666);
+      // console.log(666)
       if (isSomeVnode(oldStartVnode, newStartVnode)) {
         //递归
         //1 从头部开始
-        console.log(1);
+        // console.log(1)
         patch(oldStartVnode, newStartVnode);
         //移动指针
         oldStartVnode = oldChildren[++oldStartIndex];
         newStartVnode = newChildren[++newStartIndex];
-        console.log(oldStartVnode, newStartVnode);
+        // console.log(oldStartVnode,newStartVnode)
       } //2 从尾部开始
       else if (isSomeVnode(oldEndVnode, newEndVnode)) {
         //
-        console.log(2);
+        // console.log(2)
         patch(oldEndVnode, newEndVnode);
         oldEndVnode = oldChildren[--oldEndIndex];
         newEndVnode = newChildren[--newEndIndex];
       } //3 交叉比对 从头
       else if (isSomeVnode(oldStartVnode, newEndVnode)) {
-        console.log(3);
+        // console.log(3)
         patch(oldStartVnode, newEndVnode);
         oldStartVnode = oldChildren[++oldStartIndex];
         newEndVnode = newChildren[--newEndIndex];
       } //4 交叉比对 从尾
       else if (isSomeVnode(oldEndVnode, newStartVnode)) {
-        console.log(4);
+        // console.log(4)
         patch(oldEndVnode, newStartVnode);
         oldEndVnode = oldChildren[--oldStartIndex];
         newStartVnode = newChildren[++newStartIndex];
       } //5 暴力比对 儿子之间没有任何关系
       else {
-        console.log(5);
+        // console.log(5)
         //1 创建 旧元素映射表
         //2 从旧的中寻找新的中有的元素
         var moveIndex = map[newStartVnode.key];
@@ -1094,7 +1093,7 @@
       }
     }
     //判断完毕,添加多余的子儿子  a b c  新的 a b c d
-    console.log(newEndIndex);
+    // console.log(newEndIndex)
     if (newStartIndex <= newEndIndex) {
       for (var i = newStartIndex; i <= newEndIndex; i++) {
         parent.appendChild(createELm(newChildren[i]));
@@ -1289,7 +1288,7 @@
         options[key] = strats[key](parent[key], child[key]); //[a]
       } else {
         //默认合并策略
-        options[key] = child[key];
+        options[key] = child[key] || parent[key];
       }
       //(1) {created:[a,b]} 
     }
@@ -1414,6 +1413,34 @@
       //实现合并 就是合并对象 （我先考虑生命周期）不考虑其他的合并 data,computed watch
       this.options = mergeOptions(this.options, mixin);
       //  console.log( Vue.options,99999)
+    };
+    //组件
+    Vue.options.components = {};
+    Vue.component = function (id, componentDef) {
+      componentDef.name = componentDef.name || id;
+      console.log(componentDef);
+      console.log(this);
+      componentDef = this.extend(componentDef); //返回一个实例
+      console.log(componentDef);
+      this.options.components[id] = componentDef;
+      console.log(this.options);
+    };
+    Vue.extend = function (options) {
+      var spuer = this;
+      var Sub = function vuecomponet(opts) {
+        //opts 子组件的实例
+        //初始化
+        this._init(opts);
+      };
+      //属性如何处理??
+      //子组件继承父组件中的属性Vue 类的继承
+      Sub.prototype = Object.create(spuer.prototype);
+      //问题 子组件中this的执行
+      Sub.prototype.constructor = Sub;
+      //重点,将父组件的属性与子组件的属性合并到一起
+      Sub.options = mergeOptions(this.options, options);
+      console.log(Sub.options);
+      return Sub;
     };
   }
 

@@ -16,33 +16,34 @@
 
 <body>
     <div id="app">本页可用
-        <h1>{{fullName}}</h1>
+        <my-button></my-button>
     </div>
     <!-- render(){} -->
     <script src="dist/vue.js"></script>
     <script>
+        //Vue中使用组件的方式
+        //1.全局组件
+        //2.局部组件
+
+        //问题:全局组件和局部组件是亦一样的 会渲染我们局部组件
+        //3.Vue.component 通过Vue.extend实现
+        //4.Vue中的组件的关系 父子关系 子组件需要继承父组件中的属性 options
+        //5.创建一个子组件 就是new子类
+
         let vm = new Vue({
             el: "#app",
             data: {
                 firstName: 'pang',
                 lastName: 'hu'
             },
-            computed: {
-                //1.函数
-                fullName() {
-                    console.log('执行')
-                    return this.firstName + this.lastName
-                },
-                //2.属性
-                goodName: {
-                    get() {
-                        return this.firstName + this.lastName
-                    },
-                    set(value) {
-                        // ....
-                    }
+            component: {
+                'my-button': {
+                    template: `<button>局部按钮</button>`
                 }
             }
+        })
+        Vue.component('my-button', {
+            template: `<button>全局按钮</button>`
         })
         console.log(vm.fullName)
         setTimeout(() => {

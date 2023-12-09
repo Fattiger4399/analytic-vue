@@ -31,7 +31,7 @@ export function initState(vm) {
 
 function initComputed(vm) {
     let computed = vm.$options.computed
-    console.log(computed)
+    // console.log(computed)
     let watcher = vm.computedWatchers = {}
 
     for (let key in computed) {
@@ -39,6 +39,7 @@ function initComputed(vm) {
 
         let getter = typeof userDef == 'function' ? userDef : userDef.get
         watcher[key] = new Watcher(vm, getter, () => {}, {
+            //标记此为computed的watcher
             lazy: true
         })
         defineComputed(vm, key, userDef)
@@ -65,7 +66,6 @@ function defineComputed(target, key, userDef, ) {
 function createComputedGetter(key) {
     return function () {
         // if (dirty) {
-
         // }
         let watcher = this.computedWatchers[key]
         if (watcher) {
